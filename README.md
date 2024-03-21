@@ -1,5 +1,10 @@
-# chat_server
-Python Networking Task: Building a Chat Server and Client
+# Chat Server
+
+Please install the requirements, then launch either server.py and client.py and call_ai_client.py, or launch start_server_with_ai_client.py and client.py.
+You can launch multiple clients with different usernames.
+
+
+## Python Networking Task: Building a Chat Server and Client
 
 Your task is to build a simple chat system using Python. The system will consist of a server and a client. Multiple clients should be able to connect to the server, send messages, and receive messages from other clients.
 
@@ -33,3 +38,5 @@ Other points
 We will provide open ai key if you ask for it (it means you finished implementing the client and server and ready for the real stuff)
 
 Adding testing to the system is a big plus
+
+

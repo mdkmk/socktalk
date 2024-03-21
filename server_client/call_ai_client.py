@@ -3,7 +3,7 @@ import threading
 from ai_client import AIChatClient
 
 if __name__ == '__main__':
-    os.environ["OPENAI_API_KEY"] = "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"
+    os.environ["OPENAI_API_KEY"] = "<open ai api key here>"
 
     ip_address = "127.0.0.1"
     port = 1234
