@@ -1,6 +1,6 @@
 # Chat Server
 
-Please install the requirements, then launch either server.py and client.py and call_ai_client.py, or launch start_server_with_ai_client.py and client.py.
+Please install the requirements, and if you run into issues you can use a virtual environment, then launch either server.py and client.py and call_ai_client.py, or launch start_server_with_ai_client.py and client.py.
 You can launch multiple clients with different usernames.
 
 
