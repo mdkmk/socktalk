@@ -27,6 +27,7 @@ class ChatClient:
                 self.client_socket.send(message_header + message_encoded)
 
     def receive_message(self):
+        last_username = None
         while True:
             try:
                 while True:
@@ -39,7 +40,10 @@ class ChatClient:
                     message_header = self.client_socket.recv(self.HEADER_LENGTH)
                     message_length = int(message_header.decode("utf-8").strip())
                     message = self.client_socket.recv(message_length).decode("utf-8")
-                    print(f"{username} > {message}")
+                    if username != last_username:
+                        print(f"{username} > ", end="")
+                    print(message)
+                    last_username = username
             except IOError as e:
                 if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
                     print("Reading error", str(e))
