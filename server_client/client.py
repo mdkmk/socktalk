@@ -2,8 +2,11 @@ import sys
 import socket
 import threading
 import errno
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QLineEdit, QPushButton, QVBoxLayout, QWidget
-from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
+from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtGui import QKeySequence
+
 
 class ReceiverThread(QThread):
     received_signal = pyqtSignal(str)
@@ -20,8 +23,11 @@ class ReceiverThread(QThread):
                 while True:
                     username_header = self.client_socket.recv(self.header_length)
                     if not len(username_header):
-                        print("Connection closed by the server")
+                        if self.running:  # Check if the thread is supposed to be running
+                            print("Connection closed by the server")
+                        self.running = False
                         self.terminate()
+                        return
                     username_length = int(username_header.decode("utf-8").strip())
                     username = self.client_socket.recv(username_length).decode("utf-8")
                     message_header = self.client_socket.recv(self.header_length)
@@ -33,15 +39,38 @@ class ReceiverThread(QThread):
             except IOError as e:
                 if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
                     print("Reading error", str(e))
+                    self.running = False
                     self.terminate()
+                    return
                 continue
             except Exception as e:
                 print("General error", str(e))
+                self.running = False
                 self.terminate()
+                return
 
     def stop(self):
         self.running = False
-        self.terminate()
+        self.wait()  # Wait for the thread to finish
+
+class CustomTextEdit(QTextEdit):
+    def __init__(self, parent=None, chat_client=None):
+        super().__init__(parent)
+        self.chat_client = chat_client
+        self.setFixedHeight(90)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+            if event.modifiers() & Qt.ShiftModifier:
+                self.insertPlainText("\n")
+            else:
+                if self.chat_client:
+                    self.chat_client.write()
+        elif event.matches(QKeySequence.Paste):
+            clipboard_text = QApplication.clipboard().text()
+            self.insertPlainText(clipboard_text)
+        else:
+            super().keyPressEvent(event)
 
 class ChatClient(QMainWindow):
     HEADER_LENGTH = 10
@@ -72,7 +101,7 @@ class ChatClient(QMainWindow):
         self.text_area.setReadOnly(True)
         layout.addWidget(self.text_area)
 
-        self.input_area = QLineEdit(self)
+        self.input_area = CustomTextEdit(self, chat_client=self)
         self.input_area.setPlaceholderText(f"Message as {self.username}")
         layout.addWidget(self.input_area)
 
@@ -86,21 +115,21 @@ class ChatClient(QMainWindow):
 
     @pyqtSlot()
     def write(self):
-        message = self.input_area.text()
+        message = self.input_area.toPlainText()
         self.send_message(message)
-        # Display the message in the client's text display box
         self.update_text_area(f"{self.username} > {message}")
         self.input_area.clear()
 
     def send_message(self, message):
-        if message:
-            message_encoded = message.encode("utf-8")
-            message_header = f"{len(message_encoded):<{self.HEADER_LENGTH}}".encode("utf-8")
-            self.client_socket.send(message_header + message_encoded)
+        message_encoded = message.encode("utf-8")
+        message_header = f"{len(message_encoded):<{self.HEADER_LENGTH}}".encode("utf-8")
+        self.client_socket.send(message_header + message_encoded)
 
     @pyqtSlot(str)
     def update_text_area(self, message):
-        self.text_area.append(message)
+        username, _, content = message.partition(' > ')
+        formatted_content = content.replace('\n', '<br>')
+        self.text_area.append(f"{username} > {formatted_content}")
 
     def closeEvent(self, event):
         self.receiver_thread.stop()
