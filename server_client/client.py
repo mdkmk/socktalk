@@ -1,8 +1,7 @@
 import sys
 import socket
-import threading
 import errno
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton
 from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtGui import QKeySequence
@@ -23,7 +22,7 @@ class ReceiverThread(QThread):
                 while True:
                     username_header = self.client_socket.recv(self.header_length)
                     if not len(username_header):
-                        if self.running:  # Check if the thread is supposed to be running
+                        if self.running:
                             print("Connection closed by the server")
                         self.running = False
                         self.terminate()
@@ -51,7 +50,7 @@ class ReceiverThread(QThread):
 
     def stop(self):
         self.running = False
-        self.wait()  # Wait for the thread to finish
+        self.wait()
 
 class CustomTextEdit(QTextEdit):
     def __init__(self, parent=None, chat_client=None):
