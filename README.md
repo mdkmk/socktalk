@@ -31,10 +31,5 @@ The AI client will connect to the server and respond to the chat. It has two mod
 1. Respond every N lines: the bot reads the conversation and responds to the conversation once every N lines
 2. ⁠Respond every N seconds: the bot says something completely new and unrelated every N seconds
 
-Other points
-
-We will provide open ai key if you ask for it (it means you finished implementing the client and server and ready for the real stuff)
-
-Adding testing to the system is a big plus
 
 
