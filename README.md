@@ -1,6 +1,6 @@
 # Chat Server
 
-Please install the requirements, and if you run into issues you can use a virtual environment, then launch either start_server_with_ai_client_v3.py after adjusting the settings (ai_client api key, enabling ai mode 1 or ai mode 2), then launch ai_client_v5.py (can be launched multiple times, for multiple users)
+Please install the requirements, and if you run into issues you can use a virtual environment, then launch "start_server_with_ai_client_v3.py" after adjusting the settings (ai_client api key, enabling ai mode 1 or ai mode 2), then launch "ai_client_v5.py" (can be launched multiple times, for multiple users)
 
 ## Python Networking Task: Building a Chat Server and Client
 
