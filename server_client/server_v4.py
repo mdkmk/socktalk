@@ -14,6 +14,7 @@ class ChatServer:
         self.sockets_list = [self.server_socket]
         self.clients = {}
 
+
     def receive_message(self, client_socket):
         try:
             message_header = client_socket.recv(self.HEADER_LENGTH)
@@ -47,11 +48,14 @@ class ChatServer:
                     print(f"Received message from {user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
                     for client_socket in self.clients:
                         if client_socket != notified_socket:
-                            client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
+                            combined_message = user['data'] + b' > ' + message['data']
+                            combined_header = f"{len(combined_message):<{self.HEADER_LENGTH}}".encode("utf-8")
+                            client_socket.send(combined_header + combined_message)
 
             for notified_socket in exception_sockets:
                 self.sockets_list.remove(notified_socket)
                 del self.clients[notified_socket]
+
 
 if __name__ == "__main__":
     server = ChatServer("127.0.0.1", 1234)

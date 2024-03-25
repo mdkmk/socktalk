@@ -6,7 +6,6 @@ from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtGui import QKeySequence
 
-
 class ReceiverThread(QThread):
     received_signal = pyqtSignal(str)
 
@@ -20,21 +19,16 @@ class ReceiverThread(QThread):
         while self.running:
             try:
                 while True:
-                    username_header = self.client_socket.recv(self.header_length)
-                    if not len(username_header):
+                    message_header = self.client_socket.recv(self.header_length)
+                    if not len(message_header):
                         if self.running:
                             print("Connection closed by the server")
                         self.running = False
                         self.terminate()
                         return
-                    username_length = int(username_header.decode("utf-8").strip())
-                    username = self.client_socket.recv(username_length).decode("utf-8")
-                    message_header = self.client_socket.recv(self.header_length)
                     message_length = int(message_header.decode("utf-8").strip())
                     message = self.client_socket.recv(message_length).decode("utf-8")
-
-                    formatted_message = f"{username} > {message}"
-                    self.received_signal.emit(formatted_message)
+                    self.received_signal.emit(message)
             except IOError as e:
                 if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
                     print("Reading error", str(e))
@@ -82,32 +76,30 @@ class ChatClient(QMainWindow):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.ip, self.port))
         self.client_socket.setblocking(False)
-        username_encoded = self.username.encode("utf-8")
-        username_header = f"{len(username_encoded):<{self.HEADER_LENGTH}}".encode("utf-8")
-        self.client_socket.send(username_header + username_encoded)
+        self.send_username()
         self.initUI()
         self.receiver_thread = ReceiverThread(self.client_socket, self.HEADER_LENGTH)
         self.receiver_thread.received_signal.connect(self.update_text_area)
         self.receiver_thread.start()
 
+    def send_username(self):
+        username_encoded = self.username.encode("utf-8")
+        username_header = f"{len(username_encoded):<{self.HEADER_LENGTH}}".encode("utf-8")
+        self.client_socket.send(username_header + username_encoded)
+
     def initUI(self):
         self.setWindowTitle(f"{self.username}'s Chatty Client")
         self.setGeometry(100, 100, 400, 600)
-
         layout = QVBoxLayout()
-
         self.text_area = QTextEdit(self)
         self.text_area.setReadOnly(True)
         layout.addWidget(self.text_area)
-
         self.input_area = CustomTextEdit(self, chat_client=self)
         self.input_area.setPlaceholderText(f"Message as {self.username}")
         layout.addWidget(self.input_area)
-
         self.send_button = QPushButton("Send", self)
         self.send_button.clicked.connect(self.write)
         layout.addWidget(self.send_button)
-
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
@@ -126,9 +118,7 @@ class ChatClient(QMainWindow):
 
     @pyqtSlot(str)
     def update_text_area(self, message):
-        username, _, content = message.partition(' > ')
-        formatted_content = content.replace('\n', '<br>')
-        self.text_area.append(f"{username} > {formatted_content}")
+        self.text_area.append(message.replace('\n', '<br>'))
 
     def closeEvent(self, event):
         self.receiver_thread.stop()
