@@ -43,20 +43,16 @@ class AIChatClient:
     def receive_message(self):
         while self.running:
             try:
-                if (self.mode == 2 and self.server.get_user_client_count() > 0 and self.last_response_time == float(
-                        'inf')):
-                    self.last_response_time = time.time()
-
-                if (self.mode == 2 and self.server.get_user_client_count() > 0 and
-                        not self.last_response_time == float('inf') and
-                        time.time() - self.last_response_time >= self.interval):
-                    self.respond_with_new_message()
-                    self.last_response_time = time.time()
-
-                elif (self.mode == 2 and self.server.get_user_client_count() == 0 and
-                      not self.last_response_time == float('inf')):
+                if self.mode == 2 and self.server.get_user_client_count() > 0:
+                    if self.last_response_time == float('inf'):
+                        self.last_response_time = time.time()
+                    elif time.time() - self.last_response_time >= self.interval:
+                        self.respond_with_new_message()
+                        self.last_response_time = time.time()
+                elif self.mode == 2 and self.server.get_user_client_count() == 0:
                     self.last_response_time = float('inf')
 
+                # Check for incoming messages
                 message_header = self.client_socket.recv(self.HEADER_LENGTH)
                 if not len(message_header):
                     print("Connection closed by the server")

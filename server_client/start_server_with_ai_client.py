@@ -39,7 +39,7 @@ def main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active
 
     if ai_mode1_active:
         username_mode1 = "AI_mode1"
-        ai_client_mode1 = AIChatClient(server, server_ip_address, server_port, username_mode1, 1, ai_mode2_interval,
+        ai_client_mode1 = AIChatClient(server, server_ip_address, server_port, username_mode1, 1, ai_mode1_interval,
                                        send_full_chat_history)
         threading.Thread(target=ai_client_mode1.receive_message).start()
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     os.environ['OPENAI_API_KEY'] = "<OPENAI API KEY HERE>"
     send_full_chat_history = True
-    ai_mode1_active = False
+    ai_mode1_active = True
     ai_mode1_interval = 3
     ai_mode2_active = True
     ai_mode2_interval = 20
