@@ -8,7 +8,7 @@ import sys
 class AIChatClient:
     HEADER_LENGTH = 10
 
-    def __init__(self, ip, port, use_full_history, username, mode, interval):
+    def __init__(self, ip, port, send_full_chat_history, username, mode, interval):
         self.ip = ip
         self.port = port
         self.username = username
@@ -23,7 +23,7 @@ class AIChatClient:
         self.openai_client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.error_reported = False
         self.conversation_history = []
-        self.use_full_history = use_full_history
+        self.send_full_chat_history = send_full_chat_history
 
 
     def send_username(self):
@@ -73,8 +73,11 @@ class AIChatClient:
 
     def respond_to_message(self):
         try:
-            messages_to_send = self.conversation_history if self.use_full_history else self.conversation_history[
-                                                                                       -self.interval:]
+            if self.send_full_chat_history:
+                messages_to_send = self.conversation_history
+            else:
+                user_messages = [msg for msg in self.conversation_history if msg["role"] == "user"]
+                messages_to_send = user_messages[-self.interval:]
             print("Sending messages to OpenAI:", messages_to_send)
             chat_completion = self.openai_client.chat.completions.create(
                 messages=messages_to_send,
@@ -91,7 +94,7 @@ class AIChatClient:
             chat_completion = self.openai_client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": "Start a new conversation."},
-                    {"role": "user", "content": "Say something interesting."}
+                    {"role": "user", "content": "Say something interesting from a random wikipedia page."}
                 ],
                 model="gpt-3.5-turbo",
             )
