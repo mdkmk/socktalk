@@ -4,12 +4,11 @@ import time
 import openai
 import errno
 import sys
-import threading
 
 class AIChatClient:
     HEADER_LENGTH = 10
 
-    def __init__(self, ip, port, username, mode, interval):
+    def __init__(self, ip, port, use_full_history, username, mode, interval):
         self.ip = ip
         self.port = port
         self.username = username
@@ -24,6 +23,7 @@ class AIChatClient:
         self.openai_client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.error_reported = False
         self.conversation_history = []
+        self.use_full_history = use_full_history
 
 
     def send_username(self):
@@ -73,15 +73,16 @@ class AIChatClient:
 
     def respond_to_message(self):
         try:
-            recent_history = self.conversation_history[-self.interval:]
-            print("Sending messages to OpenAI:", recent_history)
+            messages_to_send = self.conversation_history if self.use_full_history else self.conversation_history[
+                                                                                       -self.interval:]
+            print("Sending messages to OpenAI:", messages_to_send)
             chat_completion = self.openai_client.chat.completions.create(
-                messages=recent_history,
+                messages=messages_to_send,
                 model="gpt-3.5-turbo",
             )
             response_text = chat_completion.choices[0].message.content
             self.send_message(response_text)
-            self.conversation_history = [{"role": "assistant", "content": response_text}]
+            self.conversation_history.append({"role": "assistant", "content": response_text})
         except Exception as e:
             self.handle_error(f"Error calling OpenAI API: {e}")
 
