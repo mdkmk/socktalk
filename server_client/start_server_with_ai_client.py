@@ -2,7 +2,7 @@ import threading
 import time
 import os
 from server import ChatServer
-from old.ai_client_old import AIChatClient
+from ai_client import AIChatClient
 
 def close_previous_instances(process_name):
     pids = os.popen(f"pgrep -f {process_name}").read().splitlines()
@@ -27,20 +27,6 @@ def start_server(ip, port):
     server = ChatServer(ip, port)
     server.run()
 
-def start_ai_client(ip, port, send_full_chat_history, mode1_active, mode1_interval, mode2_active, mode2_interval):
-
-    if mode1_active:
-        username_mode1 = "AI_mode1"
-        ai_client_mode1 = AIChatClient(ip, port, send_full_chat_history, username_mode1, mode=1, interval=mode1_interval)
-        receive_thread_mode1 = threading.Thread(target=ai_client_mode1.receive_message)
-        receive_thread_mode1.start()
-
-    if mode2_active:
-        username_mode2 = "AI_mode2"
-        ai_client_mode2 = AIChatClient(ip, port, send_full_chat_history, username_mode2, mode=2, interval=mode2_interval)
-        receive_thread_mode2 = threading.Thread(target=ai_client_mode2.receive_message)
-        receive_thread_mode2.start()
-
 def main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode2_active, ai_mode2_interval):
     server = ChatServer(server_ip_address, server_port)
     server_thread = threading.Thread(target=server.run)
@@ -53,12 +39,14 @@ def main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active
 
     if ai_mode1_active:
         username_mode1 = "AI_mode1"
-        ai_client_mode1 = AIChatClient(server_ip_address, server_port, send_full_chat_history, username_mode1, mode=1, interval=ai_mode1_interval)
+        ai_client_mode1 = AIChatClient(server, server_ip_address, server_port, username_mode1, 1, ai_mode2_interval,
+                                       send_full_chat_history)
         threading.Thread(target=ai_client_mode1.receive_message).start()
 
     if ai_mode2_active:
         username_mode2 = "AI_mode2"
-        ai_client_mode2 = AIChatClient(server_ip_address, server_port, send_full_chat_history, username_mode2, mode=2, interval=ai_mode2_interval)
+        ai_client_mode2 = AIChatClient(server, server_ip_address, server_port, username_mode2, 2, ai_mode2_interval,
+                                       send_full_chat_history)
         threading.Thread(target=ai_client_mode2.receive_message).start()
 
     try:
@@ -79,14 +67,15 @@ if __name__ == '__main__':
 
     os.environ['OPENAI_API_KEY'] = "<OPENAI API KEY HERE>"
     send_full_chat_history = True
-    ai_mode1_active = True
+    ai_mode1_active = False
     ai_mode1_interval = 3
-    ai_mode2_active = False
+    ai_mode2_active = True
     ai_mode2_interval = 20
 
     close_previous_instances("start_server_with_ai_client.py")
     load_env_variables()
     main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode2_active,
          ai_mode2_interval)
+
 
 

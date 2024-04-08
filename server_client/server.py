@@ -16,6 +16,9 @@ class ChatServer:
         self.running = True
 
 
+    def get_user_client_count(self):
+        return sum(1 for client in self.clients.values() if client['data'].decode('utf-8').startswith('AI_') is False)
+
     def receive_message(self, client_socket):
         try:
             message_header = client_socket.recv(self.HEADER_LENGTH)
@@ -57,6 +60,7 @@ class ChatServer:
                 for notified_socket in exception_sockets:
                     self.sockets_list.remove(notified_socket)
                     del self.clients[notified_socket]
+
             except OSError as e:
                 if self.running:
                     print(f"Server accept error: {e}")

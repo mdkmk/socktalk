@@ -3,13 +3,13 @@ import socket
 import time
 import openai
 import errno
-import sys
+import threading
 
 
 class AIChatClient:
     HEADER_LENGTH = 10
 
-    def __init__(self, ip, port, send_full_chat_history, username, mode, interval):
+    def __init__(self, server, ip, port, username, mode, interval, send_full_chat_history):
         self.ip = ip
         self.port = port
         self.username = username
@@ -20,12 +20,13 @@ class AIChatClient:
         self.client_socket.setblocking(False)
         self.send_username()
         self.line_count = 0
-        self.last_response_time = time.time()
+        self.last_response_time = float('inf')
         self.openai_client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.error_reported = False
         self.conversation_history = []
         self.send_full_chat_history = send_full_chat_history
         self.running = True
+        self.server = server
 
     def shutdown(self):
         self.running = False
@@ -42,9 +43,19 @@ class AIChatClient:
     def receive_message(self):
         while self.running:
             try:
-                if self.mode == 2 and time.time() - self.last_response_time >= self.interval:
+                if (self.mode == 2 and self.server.get_user_client_count() > 0 and self.last_response_time == float(
+                        'inf')):
+                    self.last_response_time = time.time()
+
+                if (self.mode == 2 and self.server.get_user_client_count() > 0 and
+                        not self.last_response_time == float('inf') and
+                        time.time() - self.last_response_time >= self.interval):
                     self.respond_with_new_message()
                     self.last_response_time = time.time()
+
+                elif (self.mode == 2 and self.server.get_user_client_count() == 0 and
+                      not self.last_response_time == float('inf')):
+                    self.last_response_time = float('inf')
 
                 message_header = self.client_socket.recv(self.HEADER_LENGTH)
                 if not len(message_header):
@@ -101,12 +112,17 @@ class AIChatClient:
         try:
             chat_completion = self.openai_client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "Start a new conversation."},
-                    {"role": "user", "content": "Say something interesting from a random Wikipedia page."}
+                    {"role": "user", "content": "Say something interesting from a random Wikipedia page, but don't "
+                                                "mention the source."}
                 ],
                 model="gpt-3.5-turbo",
             )
             response_text = chat_completion.choices[0].message.content
             self.send_message(response_text)
         except Exception as e:
-            self.handle_error(f"Error calling OpenAI
+            self.handle_error(f"Error calling OpenAI API: {e}")
+
+    def send_message(self, message):
+        message_encoded = message.encode("utf-8")
+        message_header = f"{len(message_encoded):<{self.HEADER_LENGTH}}".encode("utf-8")
+        self.client_socket.send(message_header + message_encoded)
