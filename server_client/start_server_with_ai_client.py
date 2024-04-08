@@ -68,7 +68,7 @@ if __name__ == '__main__':
     os.environ['OPENAI_API_KEY'] = "<OPENAI API KEY HERE>"
     send_full_chat_history = True
     ai_mode1_active = True
-    ai_mode1_interval = 3
+    ai_mode1_interval = 1
     ai_mode2_active = True
     ai_mode2_interval = 20
 

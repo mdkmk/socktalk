@@ -75,13 +75,16 @@ class AIChatClient:
 
     def handle_message(self, message):
         username, _, content = message.partition(' > ')
-        if username.strip() != self.username and content.strip():
+        if "AI" not in username.strip():
             self.conversation_history.append({"role": "user", "content": content})
             if self.mode == 1:
                 self.line_count += 1
                 if self.line_count >= self.interval:
                     self.respond_to_message()
                     self.line_count = 0
+        if username.strip() != self.username and "AI" in username.strip():
+            self.conversation_history.append({"role": "system", "content": content})
+
 
     def handle_error(self, error_message):
         if not self.error_reported:
@@ -108,7 +111,8 @@ class AIChatClient:
         try:
             chat_completion = self.openai_client.chat.completions.create(
                 messages=[
-                    {"role": "user", "content": "Say something interesting from a random Wikipedia page, but don't "
+                    {"role": "user", "content": "Say something interesting from a random Wikipedia page, and start your"
+                                                " response with 'Did you know', but don't "
                                                 "mention the source."}
                 ],
                 model="gpt-3.5-turbo",
