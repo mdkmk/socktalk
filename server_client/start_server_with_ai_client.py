@@ -2,7 +2,7 @@ import threading
 import time
 import os
 from server import ChatServer
-from ai_client import AIChatClient
+from old.ai_client_old import AIChatClient
 
 def close_previous_instances(process_name):
     pids = os.popen(f"pgrep -f {process_name}").read().splitlines()
@@ -48,10 +48,29 @@ def main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active
 
     time.sleep(1)
 
-    start_ai_client(server_ip_address, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode2_active,
-                    ai_mode2_interval)
+    ai_client_mode1 = None
+    ai_client_mode2 = None
 
-    server_thread.join()
+    if ai_mode1_active:
+        username_mode1 = "AI_mode1"
+        ai_client_mode1 = AIChatClient(server_ip_address, server_port, send_full_chat_history, username_mode1, mode=1, interval=ai_mode1_interval)
+        threading.Thread(target=ai_client_mode1.receive_message).start()
+
+    if ai_mode2_active:
+        username_mode2 = "AI_mode2"
+        ai_client_mode2 = AIChatClient(server_ip_address, server_port, send_full_chat_history, username_mode2, mode=2, interval=ai_mode2_interval)
+        threading.Thread(target=ai_client_mode2.receive_message).start()
+
+    try:
+        server_thread.join()
+    except KeyboardInterrupt:
+        print("Shutting down server and AI clients...")
+        server.shutdown()
+        if ai_client_mode1:
+            ai_client_mode1.shutdown()
+        if ai_client_mode2:
+            ai_client_mode2.shutdown()
+        server_thread.join()
 
 
 if __name__ == '__main__':

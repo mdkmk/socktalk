@@ -13,6 +13,7 @@ class ChatServer:
         self.server_socket.listen()
         self.sockets_list = [self.server_socket]
         self.clients = {}
+        self.running = True
 
 
     def receive_message(self, client_socket):
@@ -26,35 +27,48 @@ class ChatServer:
             return False
 
     def run(self):
-        while True:
-            read_sockets, _, exception_sockets = select.select(self.sockets_list, [], self.sockets_list)
-            for notified_socket in read_sockets:
-                if notified_socket == self.server_socket:
-                    client_socket, client_address = self.server_socket.accept()
-                    user = self.receive_message(client_socket)
-                    if user is False:
-                        continue
-                    self.sockets_list.append(client_socket)
-                    self.clients[client_socket] = user
-                    print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username:{user['data'].decode('utf-8')}")
-                else:
-                    message = self.receive_message(notified_socket)
-                    if message is False:
-                        print(f"Closed connection from {self.clients[notified_socket]['data'].decode('utf-8')}")
-                        self.sockets_list.remove(notified_socket)
-                        del self.clients[notified_socket]
-                        continue
-                    user = self.clients[notified_socket]
-                    print(f"Received message from {user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
-                    for client_socket in self.clients:
-                        if client_socket != notified_socket:
-                            combined_message = user['data'] + b' > ' + message['data']
-                            combined_header = f"{len(combined_message):<{self.HEADER_LENGTH}}".encode("utf-8")
-                            client_socket.send(combined_header + combined_message)
+        while self.running:
+            try:
+                read_sockets, _, exception_sockets = select.select(self.sockets_list, [], self.sockets_list)
+                for notified_socket in read_sockets:
+                    if notified_socket == self.server_socket:
+                        client_socket, client_address = self.server_socket.accept()
+                        user = self.receive_message(client_socket)
+                        if user is False:
+                            continue
+                        self.sockets_list.append(client_socket)
+                        self.clients[client_socket] = user
+                        print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username:{user['data'].decode('utf-8')}")
+                    else:
+                        message = self.receive_message(notified_socket)
+                        if message is False:
+                            print(f"Closed connection from {self.clients[notified_socket]['data'].decode('utf-8')}")
+                            self.sockets_list.remove(notified_socket)
+                            del self.clients[notified_socket]
+                            continue
+                        user = self.clients[notified_socket]
+                        print(f"Received message from {user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
+                        for client_socket in self.clients:
+                            if client_socket != notified_socket:
+                                combined_message = user['data'] + b' > ' + message['data']
+                                combined_header = f"{len(combined_message):<{self.HEADER_LENGTH}}".encode("utf-8")
+                                client_socket.send(combined_header + combined_message)
 
-            for notified_socket in exception_sockets:
-                self.sockets_list.remove(notified_socket)
-                del self.clients[notified_socket]
+                for notified_socket in exception_sockets:
+                    self.sockets_list.remove(notified_socket)
+                    del self.clients[notified_socket]
+            except OSError as e:
+                if self.running:
+                    print(f"Server accept error: {e}")
+                else:
+                    print("Server socket closed")
+                    break
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+
+    def shutdown(self):
+        self.running = False
+        self.server_socket.close()
 
 
 if __name__ == "__main__":

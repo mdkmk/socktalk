@@ -5,6 +5,7 @@ import openai
 import errno
 import sys
 
+
 class AIChatClient:
     HEADER_LENGTH = 10
 
@@ -24,7 +25,14 @@ class AIChatClient:
         self.error_reported = False
         self.conversation_history = []
         self.send_full_chat_history = send_full_chat_history
+        self.running = True
 
+    def shutdown(self):
+        self.running = False
+        try:
+            self.client_socket.close()
+        except Exception as e:
+            print(f"Error closing socket: {e}")
 
     def send_username(self):
         username_encoded = self.username.encode("utf-8")
@@ -32,38 +40,41 @@ class AIChatClient:
         self.client_socket.send(username_header + username_encoded)
 
     def receive_message(self):
-        while True:
+        while self.running:
             try:
                 if self.mode == 2 and time.time() - self.last_response_time >= self.interval:
                     self.respond_with_new_message()
                     self.last_response_time = time.time()
-                while True:
-                    message_header = self.client_socket.recv(self.HEADER_LENGTH)
-                    if not len(message_header):
-                        print("Connection closed by the server")
-                        sys.exit()
-                    message_length = int(message_header.decode("utf-8").strip())
-                    message = self.client_socket.recv(message_length).decode("utf-8")
-                    self.handle_message(message)
-            except IOError as e:
-                if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-                    print("Reading error:", str(e))
+
+                message_header = self.client_socket.recv(self.HEADER_LENGTH)
+                if not len(message_header):
+                    print("Connection closed by the server")
                     break
-                continue
+                message_length = int(message_header.decode("utf-8").strip())
+                message = self.client_socket.recv(message_length).decode("utf-8")
+                self.handle_message(message)
+
+            except IOError as e:
+                if e.errno == errno.EBADF:
+                    print("Client socket closed, stopping receive loop")
+                    break
+                elif e.errno not in (errno.EAGAIN, errno.EWOULDBLOCK):
+                    print(f"Reading error: {e}")
+                    break
+
             except Exception as e:
-                print("Error receiving message:", str(e))
+                print(f"Error receiving message: {e}")
                 break
 
     def handle_message(self, message):
         username, _, content = message.partition(' > ')
-        if username.strip() != self.username:
+        if username.strip() != self.username and content.strip():
             self.conversation_history.append({"role": "user", "content": content})
             if self.mode == 1:
                 self.line_count += 1
                 if self.line_count >= self.interval:
                     self.respond_to_message()
                     self.line_count = 0
-
 
     def handle_error(self, error_message):
         if not self.error_reported:
@@ -73,11 +84,8 @@ class AIChatClient:
 
     def respond_to_message(self):
         try:
-            if self.send_full_chat_history:
-                messages_to_send = self.conversation_history
-            else:
-                user_messages = [msg for msg in self.conversation_history if msg["role"] == "user"]
-                messages_to_send = user_messages[-self.interval:]
+            messages_to_send = self.conversation_history if self.send_full_chat_history else self.conversation_history[
+                                                                                             -self.interval:]
             print("Sending messages to OpenAI:", messages_to_send)
             chat_completion = self.openai_client.chat.completions.create(
                 messages=messages_to_send,
@@ -94,16 +102,11 @@ class AIChatClient:
             chat_completion = self.openai_client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": "Start a new conversation."},
-                    {"role": "user", "content": "Say something interesting from a random wikipedia page."}
+                    {"role": "user", "content": "Say something interesting from a random Wikipedia page."}
                 ],
                 model="gpt-3.5-turbo",
             )
             response_text = chat_completion.choices[0].message.content
             self.send_message(response_text)
         except Exception as e:
-            self.handle_error(f"Error calling OpenAI API: {e}")
-
-    def send_message(self, message):
-        message_encoded = message.encode("utf-8")
-        message_header = f"{len(message_encoded):<{self.HEADER_LENGTH}}".encode("utf-8")
-        self.client_socket.send(message_header + message_encoded)
+            self.handle_error(f"Error calling OpenAI
