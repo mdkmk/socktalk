@@ -6,14 +6,17 @@ from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtGui import QKeySequence
 
+
 class ReceiverThread(QThread):
     received_signal = pyqtSignal(str)
+    connection_closed_signal = pyqtSignal()
 
     def __init__(self, client_socket, header_length):
         super().__init__()
         self.client_socket = client_socket
         self.header_length = header_length
         self.running = True
+        self.last_username = None
 
     def run(self):
         while self.running:
@@ -24,6 +27,7 @@ class ReceiverThread(QThread):
                         if self.running:
                             print("Connection closed by the server")
                         self.running = False
+                        self.connection_closed_signal.emit()
                         self.terminate()
                         return
                     message_length = int(message_header.decode("utf-8").strip())
@@ -46,6 +50,7 @@ class ReceiverThread(QThread):
         self.running = False
         self.wait()
 
+
 class CustomTextEdit(QTextEdit):
     def __init__(self, parent=None, chat_client=None):
         super().__init__(parent)
@@ -65,6 +70,7 @@ class CustomTextEdit(QTextEdit):
         else:
             super().keyPressEvent(event)
 
+
 class ChatClient(QMainWindow):
     HEADER_LENGTH = 10
 
@@ -80,6 +86,7 @@ class ChatClient(QMainWindow):
         self.initUI()
         self.receiver_thread = ReceiverThread(self.client_socket, self.HEADER_LENGTH)
         self.receiver_thread.received_signal.connect(self.update_text_area)
+        self.receiver_thread.connection_closed_signal.connect(self.on_connection_closed)
         self.receiver_thread.start()
 
     def send_username(self):
@@ -118,11 +125,19 @@ class ChatClient(QMainWindow):
 
     @pyqtSlot(str)
     def update_text_area(self, message):
+        username, _, _ = message.partition(' > ')
+        if self.receiver_thread.last_username and (username != self.receiver_thread.last_username or ("AI" in username and "AI" in self.receiver_thread.last_username)):
+            self.text_area.append("")
         self.text_area.append(message.replace('\n', '<br>'))
+        self.receiver_thread.last_username = username
+
+    def on_connection_closed(self):
+        self.close()
 
     def closeEvent(self, event):
-        self.receiver_thread.stop()
-        self.client_socket.close()
+        if self.receiver_thread.isRunning():
+            self.receiver_thread.stop()
+            self.client_socket.close()
         event.accept()
 
 if __name__ == '__main__':

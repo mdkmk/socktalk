@@ -4,11 +4,6 @@ import os
 from server import ChatServer
 from ai_client import AIChatClient
 
-def close_previous_instances(process_name):
-    pids = os.popen(f"pgrep -f {process_name}").read().splitlines()
-    for pid in pids:
-        if pid != str(os.getpid()):
-            os.system(f"kill {pid}")
 
 def load_env_variables(filename='.env'):
     try:
@@ -23,9 +18,11 @@ def load_env_variables(filename='.env'):
     if os.environ.get("OPENAI_API_KEY") == "<OPENAI API KEY HERE>":
         print("Warning: OPENAI_API_KEY is not set. Please set the key or create an .env file")
 
+
 def start_server(ip, port):
     server = ChatServer(ip, port)
     server.run()
+
 
 def main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode2_active, ai_mode2_interval):
     server = ChatServer(server_ip_address, server_port)
@@ -34,30 +31,18 @@ def main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active
 
     time.sleep(1)
 
-    ai_client_mode1 = None
-    ai_client_mode2 = None
-
-    if ai_mode1_active:
-        username_mode1 = "AI_mode1"
-        ai_client_mode1 = AIChatClient(server, server_ip_address, server_port, username_mode1, 1, ai_mode1_interval,
-                                       send_full_chat_history)
-        threading.Thread(target=ai_client_mode1.receive_message).start()
-
-    if ai_mode2_active:
-        username_mode2 = "AI_mode2"
-        ai_client_mode2 = AIChatClient(server, server_ip_address, server_port, username_mode2, 2, ai_mode2_interval,
-                                       send_full_chat_history)
-        threading.Thread(target=ai_client_mode2.receive_message).start()
+    if ai_mode1_active or ai_mode2_active:
+        username = "AI"
+        ai_client = AIChatClient(server, server_ip_address, server_port, username, ai_mode1_active, ai_mode1_interval, ai_mode2_active, ai_mode2_interval, send_full_chat_history)
+        threading.Thread(target=ai_client.receive_message).start()
 
     try:
         server_thread.join()
     except KeyboardInterrupt:
         print("Shutting down server and AI clients...")
         server.shutdown()
-        if ai_client_mode1:
-            ai_client_mode1.shutdown()
-        if ai_client_mode2:
-            ai_client_mode2.shutdown()
+        if ai_client:
+            ai_client.shutdown()
         server_thread.join()
 
 
@@ -70,12 +55,7 @@ if __name__ == '__main__':
     ai_mode1_active = True
     ai_mode1_interval = 1
     ai_mode2_active = True
-    ai_mode2_interval = 20
+    ai_mode2_interval = 60
 
-    close_previous_instances("start_server_with_ai_client.py")
     load_env_variables()
-    main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode2_active,
-         ai_mode2_interval)
-
-
-
+    main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode2_active, ai_mode2_interval)

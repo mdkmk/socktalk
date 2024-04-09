@@ -1,6 +1,7 @@
 import socket
 import select
 
+
 class ChatServer:
     HEADER_LENGTH = 10
 
@@ -15,9 +16,8 @@ class ChatServer:
         self.clients = {}
         self.running = True
 
-
     def get_user_client_count(self):
-        return sum(1 for client in self.clients.values() if client['data'].decode('utf-8').startswith('AI_') is False)
+        return sum(1 for client in self.clients.values() if client['data'].decode('utf-8').startswith('AI') is False)
 
     def receive_message(self, client_socket):
         try:
