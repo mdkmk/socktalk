@@ -1,2 +1,2 @@
-PyQt5
-openai
+PyQt5==5.15.2
+openai==1.14.2

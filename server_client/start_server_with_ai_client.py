@@ -15,8 +15,8 @@ def load_env_variables(filename='.env'):
     except FileNotFoundError:
         pass
 
-    if os.environ.get("OPENAI_API_KEY") == "<OPENAI API KEY HERE>":
-        print("Warning: OPENAI_API_KEY is not set. Please set the key or create an .env file")
+    if os.environ.get("OPENAI_API_KEY") == "<OPENAI_API_KEY_HERE>":
+        print("Warning: OPENAI_API_KEY is not set. Please set the key using 'export' or create an .env file")
 
 
 def start_server(ip, port):
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     server_ip_address = "127.0.0.1"
     server_port = 1234
 
-    os.environ['OPENAI_API_KEY'] = "<OPENAI API KEY HERE>"
+    os.environ['OPENAI_API_KEY'] = "<OPENAI_API_KEY_HERE>"
     send_full_chat_history = True
     ai_mode1_active = True
     ai_mode1_interval = 1
