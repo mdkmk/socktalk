@@ -3,7 +3,7 @@
 If running the code from the github repository:
 Please install the requirements into a virtual environment, then launch "start_server_with_ai_client.py" after adjusting the settings (send full chat history, ai client api key, enabling ai mode 1 or ai mode 2, editing mode1 or mode2 intervals), then launch "client.py" (can be launched multiple times, for multiple users)
 
-If running the code using the python library "chat_server":
+If running the code using the python library "socktalk" (pip install socktalk):
 You can use the following terminal commands:
 1) "ai_server": Runs the chat server with a connected AI client. Currently uses gpt-3.5-turbo model.
     You should create an environment file named ".env" in the working directory from which you execute the python
