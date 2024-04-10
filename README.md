@@ -1,4 +1,4 @@
-# Chat Server
+# "socktalk" Socket-based AI chat server and multi-user chat client
 
 If running the code from the github repository:
 Please install the requirements into a virtual environment, then launch "start_server_with_ai_client.py" after adjusting the settings (send full chat history, ai client api key, enabling ai mode 1 or ai mode 2, editing mode1 or mode2 intervals), then launch "client.py" (can be launched multiple times, for multiple users)
