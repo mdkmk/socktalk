@@ -95,7 +95,7 @@ class ChatClient(QMainWindow):
         self.client_socket.send(username_header + username_encoded)
 
     def initUI(self):
-        self.setWindowTitle(f"{self.username}'s Chatty Client")
+        self.setWindowTitle(f"{self.username}'s Chat Client")
         self.setGeometry(100, 100, 400, 600)
         layout = QVBoxLayout()
         self.text_area = QTextEdit(self)
