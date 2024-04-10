@@ -5,8 +5,11 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='socktalk',
-    version='0.1.3',
+    version='0.1.4',
     packages=find_packages(),
+    project_urls={
+        'Source': 'https://github.com/mdkmk/chat_server'
+    },
     install_requires=[
         'PyQt5==5.15.10',
         'openai==1.14.2'
