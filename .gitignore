@@ -1,2 +1,5 @@
 server_client/.env
 pytest
+build
+chat_server.egg-info
+dist

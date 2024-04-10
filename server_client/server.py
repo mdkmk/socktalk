@@ -75,6 +75,20 @@ class ChatServer:
         self.server_socket.close()
 
 
+def main():
+    server_ip = input("Enter server IP (for default 127.0.0.1, press enter): ") or "127.0.0.1"
+    server_port = input("Enter server port (for default 1234, press enter): ") or "1234"
+    server_port = int(server_port)
+    server = ChatServer(server_ip, server_port)
+
+    try:
+        print("Chat server is running...")
+        server.run()
+    except KeyboardInterrupt:
+        print("Shutting down server...")
+        server.shutdown()
+
+
 if __name__ == "__main__":
     server = ChatServer("127.0.0.1", 1234)
     server.run()

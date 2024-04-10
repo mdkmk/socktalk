@@ -126,7 +126,8 @@ class ChatClient(QMainWindow):
     @pyqtSlot(str)
     def update_text_area(self, message):
         username, _, _ = message.partition(' > ')
-        if self.receiver_thread.last_username and (username != self.receiver_thread.last_username or ("AI" in username and "AI" in self.receiver_thread.last_username)):
+        if self.receiver_thread.last_username and (username != self.receiver_thread.last_username or
+                                                   ("AI" in username and "AI" in self.receiver_thread.last_username)):
             self.text_area.append("")
         self.text_area.append(message.replace('\n', '<br>'))
         self.receiver_thread.last_username = username
@@ -139,6 +140,17 @@ class ChatClient(QMainWindow):
             self.receiver_thread.stop()
             self.client_socket.close()
         event.accept()
+
+def main():
+    app = QApplication(sys.argv)
+    username = input("Enter your username: ")
+    server_ip = input("Enter server IP (for default 127.0.0.1, press enter): ") or "127.0.0.1"
+    server_port = input("Enter server port (for default 1234, press enter): ") or "1234"
+    server_port = int(server_port)
+    client = ChatClient(server_ip, server_port, username)
+    print("Chat client is running...")
+    client.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
