@@ -1,41 +1,50 @@
 # "socktalk" Socket-based AI chat server and multi-user chat client
 
-If running the code from the github repository:
-Please install the requirements into a virtual environment, then launch "start_server_with_ai_client.py" after adjusting the settings (send full chat history, ai client api key, enabling ai mode 1 or ai mode 2, editing mode1 or mode2 intervals), then launch "client.py" (can be launched multiple times, for multiple users)
+## Install "socktalk" from Github
+If installing from the github repository, create and enter a virtual environment:  
+Clone the socktalk repository to your working folder if you haven't already, then enter into terminal:  
+"cd socktalk"  
+Hit enter, then run:  
+"python setup.py install"
 
-If running the code using the python library "socktalk" (pip install socktalk):
+## Install "socktalk" using pip
+If installing socktalk using pip, create and enter a virtual environment then enter into your terminal:  
+"pip install socktalk"  
+
 You can use the following terminal commands:
-1) "ai_server": Runs the chat server with a connected AI client. Uses gpt-3.5-turbo model by default.
+1) "socktalk --ai": Runs the chat server with a connected AI client. Uses gpt-3.5-turbo model by default.
     You should create an environment file named ".env" in the working directory from which you execute the python
-    commands for the library, in order to adjust the AI modes and chat server settings.
+    commands for the package, in order to adjust the AI modes and chat server settings.
 
     Below is an example for your .env file. You will need to update the OpenAI chatgpt API key. In order for the API key to function you will need to load at least 5$ of credit on your OpenAI account.
     The AI client has two modes which can be toggled on or off using "True" or "False". AI response intervals can be adjusted. AI model can be adjusted. Mode2 content can be adjusted. See below for more details.
 
-    ### ".env" file example
+    ### AI Client Modes:
+   1. Respond every N lines: the bot reads the conversation and responds to the conversation once every N lines
+   2. ⁠Respond every N seconds: the bot says something completely new and unrelated every N seconds
 
-    OPENAI_API_KEY=<OPENAI_API_KEY_HERE>  
-    SERVER_IP_ADDRESS=127.0.0.1  
-    SERVER_PORT=1234  
-    SEND_FULL_CHAT_HISTORY=True  
-    AI_MODE1_ACTIVE=True  
-    AI_MODE1_INTERVAL=1  
-    AI_MODE1_MODEL=gpt-3.5-turbo  
-    AI_MODE2_ACTIVE=True  
-    AI_MODE2_INTERVAL=60  
-    AI_MODE2_MODEL=gpt-3.5-turbo  
-    AI_MODE2_CONTENT="Say something interesting from a random Wikipedia page and start your response with 'Did you know', but don't mention the source."
+       ### ".env" file example
+
+       OPENAI_API_KEY=<OPENAI_API_KEY_HERE>  
+       SERVER_IP_ADDRESS=127.0.0.1  
+       SERVER_PORT=1234  
+       SEND_FULL_CHAT_HISTORY=True  
+       AI_MODE1_ACTIVE=True  
+       AI_MODE1_INTERVAL=1  
+       AI_MODE1_MODEL=gpt-3.5-turbo  
+       AI_MODE2_ACTIVE=True  
+       AI_MODE2_INTERVAL=60  
+       AI_MODE2_MODEL=gpt-3.5-turbo  
+       AI_MODE2_CONTENT="Say something interesting from a random Wikipedia page and start your response with 'Did you know', but don't mention the source."
 
 
-2) "chat_server": Runs a chat server without a connected AI client. No .env file necessary.
+2) "socktalk --server": Runs a chat server without a connected AI client. No .env file necessary.
 
 
-3) "chat_client": Runs the user chat client.
+3) "socktalk --client": Runs the multi-user chat client.
 
 
 ## Python Networking Task: Building a Chat Server and Client
-
-Your task is to build a simple chat system using Python. The system will consist of a server and a client. Multiple clients should be able to connect to the server, send messages, and receive messages from other clients.
 
 Server
 

@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='socktalk',
-    version='0.1.8',
+    version='0.1.9',
     packages=find_packages(),
     project_urls={
         'Source': 'https://github.com/mdkmk/socktalk'
@@ -32,9 +32,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ai_server=server_client.start_server_with_ai_client:main',
-            'chat_server=server_client.server:main',
-            'chat_client=server_client.client:main'
+            'socktalk=server_client.main:main',
         ],
     },
     classifiers=[
