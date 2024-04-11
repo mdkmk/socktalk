@@ -15,15 +15,25 @@ You can use the following terminal commands:
     ### ".env" file example
 
     OPENAI_API_KEY=<OPENAI_API_KEY_HERE>
+
     SERVER_IP_ADDRESS=127.0.0.1
+
     SERVER_PORT=1234
+
     SEND_FULL_CHAT_HISTORY=True
+
     AI_MODE1_ACTIVE=True
+
     AI_MODE1_INTERVAL=1
+
     AI_MODE1_MODEL=gpt-3.5-turbo
+
     AI_MODE2_ACTIVE=True
+
     AI_MODE2_INTERVAL=60
+
     AI_MODE2_MODEL=gpt-3.5-turbo
+
     AI_MODE2_CONTENT="Say something interesting from a random Wikipedia page and start your response with 'Did you know', but don't mention the source."
 
 
