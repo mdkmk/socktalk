@@ -5,10 +5,10 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='socktalk',
-    version='0.1.5',
+    version='0.1.6',
     packages=find_packages(),
     project_urls={
-        'Source': 'https://github.com/mdkmk/chat_server'
+        'Source': 'https://github.com/mdkmk/socktalk'
     },
     install_requires=[
         'PyQt5==5.15.10',
