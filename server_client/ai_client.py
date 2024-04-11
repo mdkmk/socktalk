@@ -8,14 +8,20 @@ import errno
 class AIChatClient:
     HEADER_LENGTH = 10
 
-    def __init__(self, server, ip, port, username, mode1_enabled, mode1_interval, mode2_enabled, mode2_interval, send_full_chat_history):
+    def __init__(self, server, ip, port, username, mode1_enabled, mode1_interval, mode1_model, mode2_enabled,
+                 mode2_interval, mode2_model, send_full_chat_history, mode2_content):
         self.ip = ip
         self.port = port
         self.username = username
         self.mode1_enabled = mode1_enabled
         self.mode1_interval = mode1_interval
+        self.mode1_model = mode1_model
         self.mode2_enabled = mode2_enabled
         self.mode2_interval = mode2_interval
+        self.mode2_model = mode2_model
+        self.conversation_history = []
+        self.send_full_chat_history = send_full_chat_history
+        self.mode2_content = mode2_content
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.ip, self.port))
         self.client_socket.setblocking(False)
@@ -24,8 +30,6 @@ class AIChatClient:
         self.last_response_time = float('inf')
         self.openai_client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.error_reported = False
-        self.conversation_history = []
-        self.send_full_chat_history = send_full_chat_history
         self.running = True
         self.server = server
 
@@ -91,11 +95,12 @@ class AIChatClient:
 
     def respond_to_message(self):
         try:
-            messages_to_send = self.conversation_history if self.send_full_chat_history else self.conversation_history[-self.mode1_interval:]
+            messages_to_send = self.conversation_history if self.send_full_chat_history else\
+                self.conversation_history[-self.mode1_interval:]
             print("Sending messages to OpenAI:", messages_to_send)
             chat_completion = self.openai_client.chat.completions.create(
                 messages=messages_to_send,
-                model="gpt-3.5-turbo",
+                model=self.mode1_model,
             )
             response_text = chat_completion.choices[0].message.content
             self.send_message(response_text)
@@ -107,11 +112,9 @@ class AIChatClient:
         try:
             chat_completion = self.openai_client.chat.completions.create(
                 messages=[
-                    {"role": "user", "content": "Say something interesting from a random Wikipedia page,"
-                                                " and start your response with 'Did you know', but don't mention"
-                                                " the source."}
+                    {"role": "user", "content": self.mode2_content}
                 ],
-                model="gpt-3.5-turbo",
+                model=self.mode2_model,
             )
             response_text = chat_completion.choices[0].message.content
             self.conversation_history.append({"role": "system", "content": response_text})
