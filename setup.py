@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='socktalk',
-    version='0.2.0',
+    version='0.2.1',
     packages=find_packages(),
     project_urls={
         'Source': 'https://github.com/mdkmk/socktalk'
@@ -43,5 +43,7 @@ setup(
     python_requires='>=3.6',
     description='Socket-based AI chat server and multi-user chat client',
     long_description=long_description,
-    long_description_content_type='text/markdown'
+    long_description_content_type='text/markdown',
+    keywords='chat server, chat client, AI chatbot, chatGPT, OPENAI API, socket programming, select.select(),'
+             ' multi-user chat, real-time communication, Python chat application'
 )
