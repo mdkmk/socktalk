@@ -78,6 +78,9 @@ class AIChatClient:
                 break
 
     def handle_message(self, message):
+        if "has joined the chat" in message or "has left the chat" in message:
+            return
+
         username, _, content = message.partition(' > ')
         if username.strip() != self.username:
             self.conversation_history.append({"role": "user", "content": content})

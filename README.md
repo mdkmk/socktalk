@@ -47,7 +47,10 @@ ii. Respond every N seconds: the bot says something completely new and unrelated
 2) "socktalk --server": Runs a chat server without a connected AI client. No .env file necessary.
 
 
-3) "socktalk --client": Runs the multi-user chat client.
+3) "socktalk --client": Runs the advanced multi-user chat client.  
+
+
+4) "socktalk --terminal": Runs the simplistic and limited terminal-based multi-user chat client.
 
 
 

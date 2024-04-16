@@ -42,10 +42,15 @@ class ChatServer:
                         self.sockets_list.append(client_socket)
                         self.clients[client_socket] = user
                         print(f"Accepted new connection from {client_address[0]}:{client_address[1]} username:{user['data'].decode('utf-8')}")
+                        welcome_message = f"{user['data'].decode('utf-8')} has joined the chat!"
+                        self.broadcast_message(welcome_message, source_socket=client_socket)
                     else:
                         message = self.receive_message(notified_socket)
                         if message is False:
-                            print(f"Closed connection from {self.clients[notified_socket]['data'].decode('utf-8')}")
+                            username = self.clients[notified_socket]['data'].decode('utf-8')
+                            print(f"Closed connection from {username}")
+                            self.broadcast_message(f"{username}"
+                                                   f" has left the chat", notified_socket)
                             self.sockets_list.remove(notified_socket)
                             del self.clients[notified_socket]
                             continue
@@ -69,6 +74,13 @@ class ChatServer:
                     break
             except Exception as e:
                 print(f"Unexpected error: {e}")
+
+    def broadcast_message(self, message, source_socket=None):
+        message_encoded = message.encode("utf-8")
+        message_header = f"{len(message_encoded):<{self.HEADER_LENGTH}}".encode("utf-8")
+        for client_socket in self.clients:
+            if client_socket != source_socket:
+                client_socket.send(message_header + message_encoded)
 
     def shutdown(self):
         self.running = False
