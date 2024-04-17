@@ -1,6 +1,6 @@
-# socktalk - A Robust Socket-based AI Chat Server and Multi-user Chat Client
+# socktalk - A Socket-based AI Chat Server and Multi-user Chat Client
 
-**socktalk** is a sophisticated chat server framework developed using Python's socket programming. It facilitates real-time, multi-user interactions and integrates with OpenAI's GPT models to offer an AI-driven chatting experience. This makes it suitable for both educational purposes and practical applications.
+**socktalk** is a sophisticated chat server framework developed using Python's socket programming. It facilitates real-time, multi-user interactions and integrates with OpenAI's GPT models to offer an AI-driven chatting experience.
 
 ## Features
 - **Multi-User Support**: Manages multiple connections simultaneously to support extensive user interactions.
