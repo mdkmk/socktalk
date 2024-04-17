@@ -29,7 +29,7 @@ To install "socktalk" from GitHub:
 
 ## Usage - Run different components of "socktalk" using the following commands:
 Set up the .env file in your working directory to configure AI behaviors and server/client settings without using command-line flags.
-Alternatively, you can use command-line flags to override .env or default settings.
+Alternatively, you can use command-line flags to override .env file or default settings.
 ### **AI-enhanced chat server:**
 ```bash
 socktalk --ai
