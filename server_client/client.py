@@ -141,16 +141,16 @@ class ChatClient(QMainWindow):
             self.client_socket.close()
         event.accept()
 
-def main():
+
+def main(server_ip, server_port):
     app = QApplication(sys.argv)
     username = input("Enter your username: ")
-    server_ip = input("Enter server IP (for default 127.0.0.1, press enter): ") or "127.0.0.1"
-    server_port = input("Enter server port (for default 1234, press enter): ") or "1234"
     server_port = int(server_port)
     client = ChatClient(server_ip, server_port, username)
     print("Chat client is running...")
     client.show()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

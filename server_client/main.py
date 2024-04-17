@@ -27,7 +27,7 @@ def main():
     parser.add_argument('--terminal', action='store_true', help='Run the terminal client.')
 
     # Optional settings for the AI server
-    parser.add_argument('--server_ip_address', type=str, default=os.getenv("SERVER_IP_ADDRESS", "127.0.0.1"),
+    parser.add_argument('--server_ip', type=str, default=os.getenv("SERVER_IP", "127.0.0.1"),
                         help='IP address of the server')
     parser.add_argument('--server_port', type=int, default=int(os.getenv("SERVER_PORT", 1234)),
                         help='Port number of the server')
@@ -60,7 +60,7 @@ def main():
         if args.openai_api_key:
             os.environ['OPENAI_API_KEY'] = args.openai_api_key
 
-        ai_server_main(server_ip_address=args.server_ip_address,
+        ai_server_main(server_ip=args.server_ip,
                        server_port=args.server_port,
                        send_full_chat_history=args.send_full_chat_history,
                        ai_mode1_active=args.ai_mode1_active,
@@ -71,11 +71,14 @@ def main():
                        ai_mode2_model=args.ai_mode2_model,
                        ai_mode2_content=args.ai_mode2_content)
     elif args.server:
-        server_main()
+        server_main(server_ip=args.server_ip,
+                       server_port=args.server_port)
     elif args.client:
-        client_main()
+        client_main(server_ip=args.server_ip,
+                       server_port=args.server_port)
     elif args.terminal:
-        terminal_client_main()
+        terminal_client_main(server_ip=args.server_ip,
+                       server_port=args.server_port)
     else:
         parser.print_help()
 

@@ -1,11 +1,11 @@
 # socktalk - A Robust Socket-based AI Chat Server and Multi-user Chat Client
 
-**socktalk** is a sophisticated chat server framework developed using Python's socket programming. It facilitates real-time, multi-user interactions and integrates with OpenAI's GPT models to offer an AI-driven chatting experience. This makes it suitable for both educational purposes and practical applications.
+**socktalk** is a chat server and client developed using Python's socket programming. It affords real-time, multi-user interactions and integrates with OpenAI's GPT models to offer an AI-driven chatting experience.
 
 ## Features
-- **Multi-User Support**: Manages multiple connections simultaneously to support extensive user interactions.
-- **Efficient Message Handling**: Utilizes non-blocking sockets and `select.select()` for real-time, concurrent message processing.
-- **AI Integration**: Enhances chat functionalities with AI-driven responses, configurable for different operational modes.
+- **Multi-User Support**: Manages multiple connections simultaneously to support multi-user interactions.
+- **Efficient Message Handling**: Uses non-blocking sockets and `select.select()` for real-time, concurrent message processing.
+- **AI Integration**: Augments multi-user chat with AI-driven responses, configurable for different operational modes.
 - **Standardized Protocol**: Implements a simple message protocol with fixed-length headers to streamline communication.
 - **Versatile Client Options**: Offers both a sophisticated graphical user interface and a lightweight terminal-based client.
 
@@ -28,25 +28,44 @@ To install "socktalk" from GitHub:
     pip install socktalk
 
 ## Usage - Run different components of "socktalk" using the following commands:
-- AI-enhanced chat server:  
-Set up the .env file in your working directory to configure AI behaviors and server settings.
-    ```bash
-    socktalk --ai
-    ```
-    Alternatively, override .env settings using command-line flags:
-    ```bash
-    socktalk --ai --openai_api_key=YOUR_OPENAI_API_KEY_HERE --ai_mode2_active=False --ai_mode1_interval=3
-    ```
-- Chat server without AI integration:
-     ```bash
-    socktalk --server
-- GUI-enabled multi-user chat client:
-     ```bash
-    socktalk --client
-- Terminal-based chat client:
-    ```bash
-    socktalk --terminal
-   
+Set up the .env file in your working directory to configure AI behaviors and server/client settings without using command-line flags.
+Alternatively, you can use command-line flags to override .env or default settings.
+### **AI-enhanced chat server:**
+```bash
+socktalk --ai
+```
+With flag override:
+```bash
+socktalk --ai --openai_api_key=YOUR_OPENAI_API_KEY_HERE --ai_mode2_active=False --ai_mode1_interval=3
+```
+---
+### **Chat server without AI integration:**
+```bash
+socktalk --server
+```
+With flag override:
+```bash
+socktalk --server --server_ip=127.0.0.1 --server_port=1234
+```
+---
+### **GUI-enabled multi-user chat client:**
+```bash
+socktalk --client
+```
+With flag override:
+```bash
+socktalk --client --server_ip=127.0.0.1 --server_port=1234
+```
+---
+### **Terminal-based chat client:**
+```bash
+socktalk --terminal
+```
+With flag override:
+```bash
+socktalk --terminal --server_ip=127.0.0.1 --server_port=1234
+```
+---
 ## AI Chatbot Configuration
 ### AI Client Modes:
 1. Respond every N lines: The AI reads the conversation and responds after every N lines.

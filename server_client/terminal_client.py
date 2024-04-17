@@ -4,10 +4,11 @@ import threading
 import errno
 
 class ReceiverThread(threading.Thread):
-    def __init__(self, client_socket, header_length):
+    def __init__(self, client_socket, header_length, username):
         super().__init__()
         self.client_socket = client_socket
         self.header_length = header_length
+        self.username = username
         self.running = True
 
     def run(self):
@@ -22,8 +23,7 @@ class ReceiverThread(threading.Thread):
                         return
                     message_length = int(message_header.decode("utf-8").strip())
                     message = self.client_socket.recv(message_length).decode("utf-8")
-                    current_username, _, _ = message.partition(' > ')
-                    print("\r" + message + f"\n{username} > ", end="")
+                    print("\r" + message + f"\n{self.username} > ", end="")
                     sys.stdout.flush()
             except IOError as e:
                 if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
@@ -40,12 +40,9 @@ class ReceiverThread(threading.Thread):
         self.running = False
         self.join()
 
-def main():
-    global username
+def main(server_ip, server_port):
     HEADER_LENGTH = 10
     username = input("Enter your username: ")
-    server_ip = input("Enter server IP (for default 127.0.0.1, press enter): ") or "127.0.0.1"
-    server_port = input("Enter server port (for default 1234, press enter): ") or "1234"
     server_port = int(server_port)
     print("Chat client is running...")
 
@@ -57,7 +54,7 @@ def main():
     username_header = f"{len(username_encoded):<{HEADER_LENGTH}}".encode("utf-8")
     client_socket.send(username_header + username_encoded)
 
-    receiver_thread = ReceiverThread(client_socket, HEADER_LENGTH)
+    receiver_thread = ReceiverThread(client_socket, HEADER_LENGTH, username)
     receiver_thread.start()
 
     try:
@@ -72,4 +69,6 @@ def main():
         receiver_thread.stop()
 
 if __name__ == '__main__':
-    main()
+    server_ip = input("Enter server IP (for default 127.0.0.1, press enter): ") or "127.0.0.1"
+    server_port = input("Enter server port (for default 1234, press enter): ") or "1234"
+    main(server_ip, server_port)

@@ -10,13 +10,13 @@ def start_server(ip, port):
     server.run()
 
 
-def main(server_ip_address="127.0.0.1", server_port=1234, send_full_chat_history=True, ai_mode1_active=True,
+def main(server_ip="127.0.0.1", server_port=1234, send_full_chat_history=True, ai_mode1_active=True,
          ai_mode1_interval=1, ai_mode1_model="gpt-3.5-turbo", ai_mode2_active=True, ai_mode2_interval=60,
          ai_mode2_model="gpt-3.5-turbo", ai_mode2_content="Say something interesting from a random Wikipedia page and"
                                                        " start your response with 'Did you know', but don't mention the"
                                                        " source."):
 
-    server = ChatServer(server_ip_address, server_port)
+    server = ChatServer(server_ip, server_port)
     server_thread = threading.Thread(target=server.run)
     server_thread.start()
     print("AI chat server is running...")
@@ -24,7 +24,7 @@ def main(server_ip_address="127.0.0.1", server_port=1234, send_full_chat_history
 
     if ai_mode1_active or ai_mode2_active:
         username = "AI"
-        ai_client = AIChatClient(server, server_ip_address, server_port, username, ai_mode1_active, ai_mode1_interval,
+        ai_client = AIChatClient(server, server_ip, server_port, username, ai_mode1_active, ai_mode1_interval,
                                  ai_mode1_model, ai_mode2_active, ai_mode2_interval, ai_mode2_model,
                                  send_full_chat_history, ai_mode2_content)
         threading.Thread(target=ai_client.receive_message).start()
@@ -40,7 +40,7 @@ def main(server_ip_address="127.0.0.1", server_port=1234, send_full_chat_history
 
 
 if __name__ == '__main__':
-    server_ip_address = "127.0.0.1"
+    server_ip = "127.0.0.1"
     server_port = 1234
 
     os.environ['OPENAI_API_KEY'] = "<OPENAI_API_KEY_HERE>"
@@ -54,5 +54,5 @@ if __name__ == '__main__':
     ai_mode2_content= ("Say something interesting from a random Wikipedia page and start your response with"
                        " 'Did you know', but don't mention the source.")
 
-    main(server_ip_address, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode1_model,
+    main(server_ip, server_port, send_full_chat_history, ai_mode1_active, ai_mode1_interval, ai_mode1_model,
          ai_mode2_active, ai_mode2_interval, ai_mode2_model, ai_mode2_content)
