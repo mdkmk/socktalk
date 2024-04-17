@@ -1,4 +1,4 @@
-# socktalk - A Socket-based AI Chat Server and Multi-user Chat Client
+# socktalk - A Robust Socket-based AI Chat Server and Multi-user Chat Client
 
 **socktalk** is a chat server and client developed using Python's socket programming. It affords real-time, multi-user interactions and integrates with OpenAI's GPT models to offer an AI-driven chatting experience.
 
@@ -78,7 +78,7 @@ socktalk --terminal --server_ip=127.0.0.1 --server_port=1234
  If the remaining .env variables are not specified or called as a flag, defaults in the example below will be used.
 
     OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
-    SERVER_IP_ADDRESS=127.0.0.1
+    SERVER_IP=127.0.0.1
     SERVER_PORT=1234
     SEND_FULL_CHAT_HISTORY=True
     AI_MODE1_ACTIVE=True
